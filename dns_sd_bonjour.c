@@ -56,6 +56,7 @@ static void __cfnet_browser_cb(CFNetServiceBrowserRef browser,
 		return;
 	}
 
+	IIO_DEBUG("mutex lock\n");
 	iio_mutex_lock(dd->lock);
 
 	if (netService == NULL) {
@@ -81,6 +82,7 @@ static void __cfnet_browser_cb(CFNetServiceBrowserRef browser,
 		goto exit;
 	}
 
+	printf("get service name\n");
 	svcName = CFNetServiceGetName(netService);
 	if (!CFStringGetCString(svcName, name,
 				sizeof(name), kCFStringEncodingASCII)) {
@@ -155,10 +157,12 @@ verify_flags:
 	}
 
 exit:
+	IIO_DEBUG("mutex unlock\n");
 	iio_mutex_unlock(dd->lock);
 	return;
 
 stop_browsing:
+	IIO_DEBUG("stop browsing\n");
 	CFNetServiceBrowserStopSearch(browser, &anError);
 }
 
@@ -182,12 +186,14 @@ int dnssd_find_hosts(struct dns_sd_discovery_data **ddata)
 		return -ENOMEM;
 
 	d->lock = iio_mutex_create();
+	IIO_DEBUG("Created iio mutex");
 	if (!d->lock) {
 		dnssd_free_all_discovery_data(d);
 		return -ENOMEM;
 	}
 
 	clientContext.info = d;
+	IIO_DEBUG("create service browser");
 	serviceBrowser = CFNetServiceBrowserCreate(kCFAllocatorDefault,
 						   __cfnet_browser_cb,
 						   &clientContext);

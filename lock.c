@@ -7,6 +7,7 @@
  */
 
 #include "iio-config.h"
+#include <debug.h>
 
 #ifdef _WIN32
 #include <windows.h>
@@ -30,6 +31,7 @@ struct iio_mutex {
 
 struct iio_mutex * iio_mutex_create(void)
 {
+	IIO_DEBUG("iio_mutex_create creating mutex\n");
 	struct iio_mutex *lock = malloc(sizeof(*lock));
 
 	if (!lock)
@@ -39,6 +41,7 @@ struct iio_mutex * iio_mutex_create(void)
 #ifdef _WIN32
 	InitializeCriticalSection(&lock->lock);
 #else
+	IIO_DEBUG("pthread init mutex\n");
 	pthread_mutex_init(&lock->lock, NULL);
 #endif
 #endif
